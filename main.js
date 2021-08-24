@@ -46,44 +46,85 @@ const handleAlgorithm = (cellsInfo) => {
     matrix.forEach((matrixRow, rowIndex) => {
         matrixRow.forEach((matrixCol, colIndex) => {
             // matrixCol es la casilla en la posicion [rowIndex][colIndex]
-            console.log(matrixCol, rowIndex, colIndex);
-            
+            firstRule(matrix, matrixCol, rowIndex, colIndex);
+            secondRule(matrix, matrixCol, rowIndex, colIndex);
+            thirdRule(matrix, matrixCol, rowIndex, colIndex);
+            fourthRule(matrix, matrixCol, rowIndex, colIndex);
+
         });
     });
+
+    //Imprimir la matriz
+    let print = '';
+    matrix.forEach((matrixRow, rowIndex) => {
+        matrixRow.forEach((matrixCol, colIndex) => {
+            print += matrixCol;
+        });
+        print += '\n';
+    });    
+    console.log(print);
 };
-  
+
+const firstRule = (matrix, cellType, row, col) => {
+    const neighbors = getNeighbors(matrix, row, col).filter(cell => cell === '*');
+    if(cellType == '.') return;
+    if(neighbors.length < 2) {
+        // Muere
+        matrix[row][col] = '.'
+    }
+};
+
+// Obtener un array de los vecinos de una celula  
+const getNeighbors = (matrix, row, col) => {
+    let neighbors = [];
+    // Comprobaciones
+    if(row != 0) {
+        // Si hay vecinos arriba
+        const aboveNeighbors = matrix[row - 1].slice(col -1, col + 2);
+        neighbors = [...aboveNeighbors];
+    }
+    if(row != matrix.length - 1) {
+        // Si hay vecinos abajo
+        const belowNeighbors = matrix[row + 1].slice(col - 1, col + 2);
+        neighbors = [...neighbors, ...belowNeighbors];
+    }
+    if(col != 0) {
+        // Si hay un vecino a la izquierda
+        const leftNeighbor = matrix[row][col - 1];
+        neighbors = [...neighbors, leftNeighbor];
+    }
+    if(col + 1 != matrix[0].length - 1) {
+        // Si hay un vecino a la derecha
+        const rightNeighbor = matrix[row][col + 1];
+        neighbors = [...neighbors, rightNeighbor];
+    }
+    return neighbors;
+};
+
+const secondRule = (matrix, cellType, row, col) => {
+    const neighbors = getNeighbors(matrix, row, col).filter(cell => cell === '*');
+    if(cellType == '.') return;
+    if(neighbors.length > 3) {
+        // Muere
+        matrix[row][col] = '.';
+    }
+};
+
+const thirdRule = (matrix, cellType, row, col) => {
+    const neighbors = getNeighbors(matrix, row, col).filter(cell => cell === '*');
+    if(cellType == '.') return;
+    if(neighbors.length === 3 || neighbors.length === 2) {
+        // Vive
+        matrix[row][col] = '*';
+    }
+};
+
+const fourthRule = (matrix, cellType, row, col) => { 
+    const neighbors = getNeighbors(matrix, row, col).filter(cell => cell === '*');
+    if(cellType == '*') return;
+    if(neighbors.length === 3) {
+        matrix[row][col] = '*';
+    }
+}
+
 document.getElementById('file-input').addEventListener('change', readFile, false);
-
-
-
-    /*
-    
-Se empieza con una cuadrícula bidimensional de celdas, donde cada celda está viva o muerta. En esta versión del problema, la cuadrícula es finita y no puede haber vida fuera de los límites. Al calcular la siguiente generación de la cuadrícula, siga estas reglas:
-
-Cualquier célula viva con menos de dos vecinos vivos muere, como si se tratara de una subpoblación.
-
-Cualquier célula muerta con exactamente tres vecinos vivos se convierte en una célula viva\
-Cualquier célula viva con más de tres vecinos vivos muere, como si estuviera causada por la superpoblación.
-
-Cualquier célula viva con dos o tres vecinos vivos vive para la siguiente generación.
-
-
-*célula   
-
-........
-....*... < muere Cualquier célula viva con menos de dos vecinos vivos muere, como si se tratara de una subpoblación.
-...**...
-........
-
-
-........
-...***.. < vive Cualquier célula muerta con exactamente tres vecinos vivos se convierte en una célula viva\
-....*...
-........
-
-........
-...****. < muere Cualquier célula viva con más de tres vecinos vivos muere, como si estuviera causada por la superpoblación
-....*...
-........
-
-*/
